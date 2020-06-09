@@ -56,7 +56,6 @@ cp libflashplayer.so $PKG/usr/lib/mozilla/plugins/
 
 cd $PKG
 mkdir install
-cp $CWD/slack-desc install/
 cat > install/slack-desc << EOF
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line

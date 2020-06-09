@@ -6,7 +6,7 @@
 #	Requires the lateset version as the ONLY INPUT parameter.
 # Usage: 
 #		./updateFlash $new_version
-# <NightSky> #2016-01-08
+# <NightSky> #2016-09
 # <nightskyfore@yahoo.co.jp>
 
 # Execution Status Define
@@ -30,7 +30,7 @@ then
 	exit $NORMAL_ERROR
 fi
 
-SOURCE_FILE=install_flash_player_11_linux.$ARCH.tar.gz
+SOURCE_FILE=flash_player_npapi_linux.$ARCH.tar.gz
 PKGNAME=flash
 VERSION=$1
 BUILD=ny_1

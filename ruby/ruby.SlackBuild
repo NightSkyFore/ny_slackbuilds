@@ -1,0 +1,127 @@
+#!/bin/sh -e
+# This Script is supposed to build ruby-2.1.2 on slackware-14.1-i486
+# Under other version of slackware is without test.
+#
+# To build ruby, just make it executable, and run
+# 	./ruby.SlackBuild
+# on shell
+#
+#<NightSky> revision date 2014/09/22
+#<nightskyfore@yahoo.co.jp>
+#
+
+# Set initial variables:	
+CWD=$(pwd)
+if [ "$TMP" = "" ]; then
+	TMP=/tmp/buildtest
+fi
+
+PKGNAME=ruby
+VERSION=${VERSION:-2.1.2}
+
+ARCH=${ARCH:-i486}
+
+# The build number specifies how many times it has been built.	
+# Second string is the short form of the authors name, typical three
+# initial letter.
+BUILD=${BUILD:-1_ny}
+
+# The installation directory of the package (where its actual directory
+# structure will be created) 
+PKG=$TMP/package-$PKGNAME
+
+if [ "$ARCH" = "i486" ]; then
+	SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+	LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+	SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+	LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+	SLKCFLAGS="-O2 -fPIC"
+	LIBDIRSUFFIX="64"
+else
+	SLKCFLAGS="-O2"
+	LIBDIRSUFFIX=""
+fi
+
+# Delete the leftover directories if they exist (due to a previous build)
+# and (re)create the packaging directory
+rm -rf $PKG 
+mkdir -p $TMP $PKG
+rm -rf $TMP/$PKGNAME-$VERSION
+
+# Change to the TMP directory
+cd $TMP || exit 1
+
+# Extract the application source in TMP
+# Note: if your application comes as a tar.bz2, you need tar -jxvf
+tar -zxvf $CWD/$PKGNAME-$VERSION.tar.gz || exit 1
+
+# Change to the application source directory
+cd $PKGNAME-$VERSION || cd $PKGNAME || exit 1
+
+# Change ownership and permissions if necessary
+# This may not be needed in some source tarballs, but it never hurts
+chown -R root:root .
+chmod -R u+w,go+r-w,a-s .
+
+# Set configure options
+CFLAGS="$SLKCFLAGS" \
+	./configure \
+	--prefix=/usr \
+	--sysconfdir=/etc \
+        --localstatedir=/var \
+	--with-perl=/usr/bin/perl \
+	--enable-eps \
+	--enable-gif \
+	--enable-png \
+	--build=$ARCH-slackware-linux \
+	--host=$ARCH-slackware-linux 
+
+# compile the source, but exit if anything goes wrong
+make || exit
+
+# Install everything into the package directory, but
+# exit if anything goes wrong
+make install DESTDIR=$PKG || exit
+
+# Create a directory for documentation
+mkdir -p $PKG/usr/doc/$PKGNAME-$VERSION
+
+# Copy documentation to the docs directory and fix permissions
+cp -a BSDL COPYING ChangeLog GPL LEGAL NEWS README doc/ \
+	$PKG/usr/doc/$PKGNAME-$VERSION
+find $PKG/usr/doc/$PKGNAME-$VERSION -type f -exec chmod 644 {} \;
+
+cat $CWD/$PKGNAME.SlackBuild > \
+	$PKG/usr/doc/$PKGNAME-$VERSION/$PKGNAME.SlackBuild
+
+# Create the ./install directory and copy the slack-desc into it
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+# Add doinst.sh to package (if it exists)
+if [ -e $CWD/doinst.sh.gz ]; then
+	zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
+fi
+
+# Compress man pages if they exist
+if [ -d $PKG/usr/man ]; then
+	( cd $PKG/usr/man
+	find . -type f -exec gzip -9 {} \;
+	for i in $(find . -type l) ;
+		do ln -s $(readlink $i).gz $i.gz; rm $i; 
+	done
+        ) 
+fi
+
+# Compress info pages if they exist (and remove the dir file)
+if [ -d $PKG/usr/info ]; then
+	gzip -9 $PKG/usr/info/*.info
+	rm -f $PKG/usr/info/dir
+fi
+
+# Build the package
+cd $PKG
+/sbin/makepkg -l y -c n $TMP/$PKGNAME-$VERSION-$ARCH-$BUILD.tgz
+

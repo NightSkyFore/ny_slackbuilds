@@ -1,0 +1,20 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description. 
+# Line up the first '|' above the ':' following the base package name, 
+# and the '|' on the right marks the last column you can put character.  
+# You must make exactly 11 lines for the formatting to be correct.  
+# It's also customary to leave one space after the ':', before words.
+# Note that there is no space in line 9 and 11.
+
+    |-----handy-ruler------------------------------------------------------|
+ruby: Ruby (A dynamic, open source programming language)
+ruby:
+ruby: Ruby is the interpreted scripting language for quick and
+ruby: easy object-oriented programming.  It has many features to 
+ruby: process text files and to do system management tasks (as in
+ruby: Perl).  It is simple, straight-forward, and extensible.
+ruby:
+ruby: 
+ruby:
+ruby: HomePage: http://www.ruby-lang.org/
+ruby:
